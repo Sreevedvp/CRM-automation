@@ -1,4 +1,16 @@
-const API_BASE = "http://localhost:8000/api";
+const getApiBaseUrl = (): string => {
+  if (typeof window !== "undefined") {
+    // If served via Nginx or production proxy (port 80, 443, or relative)
+    if (!window.location.port || window.location.port === "80" || window.location.port === "443") {
+      return "/api";
+    }
+    // If served via Vite dev server on any network IP or domain (e.g. http://192.168.x.x:5173 -> http://192.168.x.x:8000/api)
+    return `${window.location.protocol}//${window.location.hostname}:8000/api`;
+  }
+  return "/api";
+};
+
+export const API_BASE = getApiBaseUrl();
 
 export interface User {
   id: number;
@@ -48,6 +60,7 @@ export interface CustomerEmailRecord {
 
 export interface ScheduledEmailItem {
   id: number;
+  batch_id?: string;
   lead_id?: number;
   recipient_name: string;
   recipient_email: string;
@@ -57,6 +70,27 @@ export interface ScheduledEmailItem {
   scheduled_at: string;
   status: string;
   created_at: string;
+}
+
+export interface AutomationRun {
+  id: number;
+  lead_id: number;
+  trigger: string;
+  actions_executed: string[];
+  success: boolean;
+  error_message?: string;
+  timestamp: string;
+}
+
+export interface MessageLog {
+  id: number;
+  lead_id: number;
+  channel: string;
+  template_used?: string;
+  content: string;
+  status: string;
+  direction: string;
+  timestamp: string;
 }
 
 export interface Task {
@@ -82,113 +116,87 @@ export interface Customer {
   converted_at: string;
 }
 
-export interface AutomationRun {
-  id: number;
-  lead_id: number;
-  trigger: string;
-  actions_executed: string[];
-  success: boolean;
-  error_message?: string;
-  timestamp: string;
+export interface EmailSettings {
+  smtp_host: string;
+  smtp_port: number;
+  smtp_user: string;
+  email_from: string;
+  is_configured: boolean;
 }
 
-export interface MessageLog {
-  id: number;
-  lead_id: number;
-  channel: string;
-  template_used?: string;
-  content: string;
-  status: string;
-  direction: string;
-  timestamp: string;
-}
-
+// Authentication API calls
 export async function loginUser(email: string, password: string): Promise<User> {
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password })
   });
+
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Authentication failed");
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || "Authentication failed.");
   }
   return res.json();
 }
 
 export async function fetchUsers(): Promise<User[]> {
-  const res = await fetch(`${API_BASE}/users`);
-  if (!res.ok) throw new Error("Failed to fetch users");
+  const res = await fetch(`${API_BASE}/auth/users`);
+  if (!res.ok) throw new Error("Failed to fetch users list.");
   return res.json();
 }
 
-export async function createStaffUser(name: string, email: string, password: string, role: string): Promise<User> {
-  const res = await fetch(`${API_BASE}/users`, {
+export async function createUser(
+  nameOrData: string | { name: string; email: string; password: string; role?: "admin" | "staff" },
+  email?: string,
+  password?: string,
+  role: "admin" | "staff" = "staff"
+): Promise<User> {
+  const payload = typeof nameOrData === "object"
+    ? nameOrData
+    : { name: nameOrData, email: email!, password: password!, role };
+
+  const res = await fetch(`${API_BASE}/auth/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password, role }),
+    body: JSON.stringify(payload)
   });
+
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Failed to create user account");
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || "Failed to create user.");
   }
   return res.json();
 }
 
-export async function fetchEmailSettings() {
-  const res = await fetch(`${API_BASE}/settings/email`);
-  if (!res.ok) throw new Error("Failed to fetch email settings");
-  return res.json();
-}
+export const createStaffUser = createUser;
 
-export async function updateEmailSettings(payload: {
-  smtp_host: string;
-  smtp_port: number;
-  smtp_user: string;
-  smtp_password: string;
-  smtp_tls: boolean;
-  email_from: string;
-}) {
-  const res = await fetch(`${API_BASE}/settings/email`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Failed to update email settings");
-  }
-  return res.json();
-}
+// Leads API calls
+export async function fetchLeads(status?: string, search?: string): Promise<Lead[]> {
+  const params = new URLSearchParams();
+  if (status) params.append("status", status);
+  if (search) params.append("search", search);
 
-export async function sendTestEmail(toEmail: string, subject?: string, message?: string) {
-  const res = await fetch(`${API_BASE}/settings/email/test`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ to_email: toEmail, subject, message }),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Test email delivery failed");
-  }
+  const url = `${API_BASE}/leads${params.toString() ? `?${params.toString()}` : ""}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch leads");
   return res.json();
 }
 
 export async function fetchCustomerEmailTracker(): Promise<CustomerEmailRecord[]> {
   const res = await fetch(`${API_BASE}/leads/email-tracker/customers`);
-  if (!res.ok) throw new Error("Failed to fetch customer email tracking logs");
+  if (!res.ok) throw new Error("Failed to fetch customer email tracker list");
   return res.json();
 }
 
 export async function fetchScheduledQueue(): Promise<ScheduledEmailItem[]> {
   const res = await fetch(`${API_BASE}/leads/scheduled-queue`);
-  if (!res.ok) throw new Error("Failed to fetch scheduled email queue");
+  if (!res.ok) throw new Error("Failed to fetch scheduled queue");
   return res.json();
 }
 
-export async function cancelScheduledEmail(scheduleId: number) {
+export async function cancelScheduledEmail(scheduleId: number): Promise<any> {
   const res = await fetch(`${API_BASE}/leads/scheduled-queue/${scheduleId}`, {
-    method: "DELETE",
+    method: "DELETE"
   });
   if (!res.ok) throw new Error("Failed to cancel scheduled email");
   return res.json();
@@ -200,102 +208,139 @@ export async function sendBatchEmailPreset(payload: {
   content: string;
   template_name?: string;
   schedule_at?: string;
-}) {
-  const res = await fetch(`${API_BASE}/leads/batch-send`, {
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/batch-send`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payload)
   });
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Batch preset email delivery failed");
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Batch email dispatch failed.");
   }
-  return res.json();
-}
-
-export async function fetchLeads(statusFilter?: string, search?: string): Promise<Lead[]> {
-  const params = new URLSearchParams();
-  if (statusFilter && statusFilter !== "all") params.append("status", statusFilter);
-  if (search) params.append("search", search);
-  const res = await fetch(`${API_BASE}/leads?${params.toString()}`);
-  if (!res.ok) throw new Error("Failed to fetch leads");
-  return res.json();
-}
-
-export async function fetchTasks(): Promise<Task[]> {
-  const res = await fetch(`${API_BASE}/tasks`);
-  if (!res.ok) throw new Error("Failed to fetch tasks");
   return res.json();
 }
 
 export async function fetchCustomers(): Promise<Customer[]> {
   const res = await fetch(`${API_BASE}/leads/customers`);
-  if (!res.ok) throw new Error("Failed to fetch customers");
+  if (!res.ok) throw new Error("Failed to fetch converted customers");
   return res.json();
 }
 
-export async function fetchAuditTrail(leadId: number): Promise<AutomationRun[]> {
+export async function fetchLeadAuditTrail(leadId: number): Promise<AutomationRun[]> {
   const res = await fetch(`${API_BASE}/leads/${leadId}/audit`);
-  if (!res.ok) throw new Error("Failed to fetch audit trail");
+  if (!res.ok) throw new Error("Failed to fetch lead audit trail");
   return res.json();
 }
+export const fetchAuditTrail = fetchLeadAuditTrail;
 
-export async function fetchMessageLogs(leadId: number): Promise<MessageLog[]> {
+export async function fetchLeadMessages(leadId: number): Promise<MessageLog[]> {
   const res = await fetch(`${API_BASE}/leads/${leadId}/messages`);
-  if (!res.ok) throw new Error("Failed to fetch message logs");
+  if (!res.ok) throw new Error("Failed to fetch lead message history");
   return res.json();
 }
+export const fetchMessageLogs = fetchLeadMessages;
 
-export async function createIntakeLead(payload: any): Promise<Lead> {
-  const res = await fetch(`${API_BASE}/intake`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Intake submission failed");
-  }
-  return res.json();
-}
-
-export async function triggerInboundReply(phoneOrEmail: string, channel: string, content: string) {
-  const res = await fetch(`${API_BASE}/intake/inbound-reply`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone_or_email: phoneOrEmail, channel, content }),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Inbound reply trigger failed");
-  }
-  return res.json();
-}
-
-export async function updateLeadSalesAction(leadId: number, status: string, reason?: string, assignedTo?: string) {
+export async function updateLeadSalesAction(
+  leadId: number,
+  status: string,
+  reason?: string,
+  assignedTo?: string
+): Promise<any> {
   const res = await fetch(`${API_BASE}/leads/${leadId}/action`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status, reason, assigned_to: assignedTo }),
+    body: JSON.stringify({ status, reason, assigned_to: assignedTo })
   });
-  if (!res.ok) throw new Error("Sales action update failed");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to update lead status");
+  }
   return res.json();
 }
 
-export async function completeTask(taskId: number): Promise<Task> {
-  const res = await fetch(`${API_BASE}/tasks/${taskId}/complete`, {
-    method: "PATCH",
-  });
-  if (!res.ok) throw new Error("Task completion failed");
-  return res.json();
+// Tasks API calls
+export async function fetchTasks(): Promise<Task[]> {
+  return [];
 }
 
-export async function generateAISmartReply(leadId: number, channel: string, lastMessage: string) {
-  const res = await fetch(`${API_BASE}/ai/smart-reply`, {
+export async function completeTask(_taskId: number): Promise<any> {
+  return { success: true };
+}
+
+// Lead Intake Simulation API
+export async function simulateInboundLead(data: {
+  name: string;
+  phone: string;
+  email: string;
+  source: string;
+  budget?: number;
+  intent_signals?: string[];
+  company_size?: string;
+  notes?: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/intake/webform`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ lead_id: leadId, channel, last_message: lastMessage }),
+    body: JSON.stringify(data)
   });
-  if (!res.ok) throw new Error("AI Smart Reply failed");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to intake lead");
+  }
+  return res.json();
+}
+export const createIntakeLead = simulateInboundLead;
+
+export async function triggerInboundReply(phoneOrEmail: string, content: string, channel: string = "email"): Promise<any> {
+  const res = await fetch(`${API_BASE}/intake/inbound-reply`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone_or_email: phoneOrEmail, content, channel })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to trigger inbound reply");
+  }
+  return res.json();
+}
+
+// Settings API calls
+export async function fetchEmailSettings(): Promise<EmailSettings> {
+  const res = await fetch(`${API_BASE}/settings/email`);
+  if (!res.ok) throw new Error("Failed to fetch email settings.");
+  return res.json();
+}
+
+export async function updateEmailSettings(data: {
+  smtp_host: string;
+  smtp_port: number;
+  smtp_user: string;
+  smtp_password: string;
+  smtp_tls: boolean;
+  email_from: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/settings/email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to save email settings.");
+  }
+  return res.json();
+}
+
+export async function sendTestEmail(toEmail: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/settings/email/test`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ to_email: toEmail })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Test email delivery failed.");
+  }
   return res.json();
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { AutomationRun } from "../api";
+import { API_BASE } from "../api";
 import { Zap, CheckCircle2, RefreshCw } from "lucide-react";
 
 export const AutomationEventsView: React.FC = () => {
@@ -9,12 +10,12 @@ export const AutomationEventsView: React.FC = () => {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:8000/api/leads");
+      const res = await fetch(`${API_BASE}/leads`);
       const leads = await res.json();
       
       let allLogs: AutomationRun[] = [];
       for (const lead of leads.slice(0, 10)) {
-        const auditRes = await fetch(`http://localhost:8000/api/leads/${lead.id}/audit`);
+        const auditRes = await fetch(`${API_BASE}/leads/${lead.id}/audit`);
         if (auditRes.ok) {
           const logs = await auditRes.json();
           allLogs = allLogs.concat(logs);

@@ -12,7 +12,7 @@ export const AdminManagement: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("staff");
+  const [role, setRole] = useState<"admin" | "staff">("staff");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -210,7 +210,7 @@ export const AdminManagement: React.FC = () => {
                 <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-secondary)" }}>Assign System Role</label>
                 <select
                   value={role}
-                  onChange={(e) => setRole(e.target.value)}
+                  onChange={(e) => setRole(e.target.value as "admin" | "staff")}
                   style={{ width: "100%", background: "var(--bg-subtle)", border: "1px solid var(--border-default)", borderRadius: 6, padding: 8, color: "var(--text-primary)", fontWeight: 600 }}
                 >
                   <option value="staff">Staff (Sales Rep)</option>
