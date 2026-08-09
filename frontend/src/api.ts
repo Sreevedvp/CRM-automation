@@ -209,7 +209,7 @@ export async function sendBatchEmailPreset(payload: {
   template_name?: string;
   schedule_at?: string;
 }): Promise<any> {
-  const res = await fetch(`${API_BASE}/batch-send`, {
+  const res = await fetch(`${API_BASE}/leads/batch-send`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
