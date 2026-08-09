@@ -32,9 +32,9 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-adminpassword}
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USER: ${SMTP_USER:-sreevedvp2002@gmail.com}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-xsva azun rdsk qcjj}
-      EMAIL_FROM: ${EMAIL_FROM:-sreevedvp2002@gmail.com}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
     ports:
       - "8000:8000"
     depends_on:
@@ -55,4 +55,3 @@ services:
 
 volumes:
   postgres_data:
-
