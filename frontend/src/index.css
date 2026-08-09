@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Text Colors - Black Everywhere as requested */
+  --text-primary: #000000;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-on-primary: #ffffff;
+  --text-brand: #2563eb;
+  --text-danger: #dc2626;
+  --text-success: #047857;
+  --text-warning: #d97706;
+
+  /* Background Colors */
+  --bg-primary: #f4f8fc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #eff6ff;
+  --bg-hover: #f1f5f9;
+  --bg-overlay: rgba(11, 28, 48, 0.65);
+
+  /* Border Colors */
+  --border-default: #e2e8f0;
+  --border-focus: #bfdbfe;
+  --border-hover: #93c5fd;
+
+  /* Brand Colors */
+  --brand-primary: #2563eb;
+  --brand-primary-hover: #1d4ed8;
+  --brand-secondary: #0284c7;
+  --brand-secondary-bg: #e0f2fe;
+
+  /* Functional Status Colors */
+  --status-hot-bg: #fee2e2;
+  --status-hot-text: #dc2626;
+  --status-hot-border: #fca5a5;
+
+  --status-warm-bg: #fef3c7;
+  --status-warm-text: #d97706;
+  --status-warm-border: #fcd34d;
+
+  --status-cold-bg: #dbeafe;
+  --status-cold-text: #1d4ed8;
+  --status-cold-border: #93c5fd;
+
+  --status-replied-bg: #e0e7ff;
+  --status-replied-text: #4338ca;
+  --status-replied-border: #a5b4fc;
+
+  --status-converted-bg: #d1fae5;
+  --status-converted-text: #047857;
+  --status-converted-border: #6ee7b7;
+
+  --status-nurture-bg: #f1f5f9;
+  --status-nurture-text: #475569;
+  --status-nurture-border: #cbd5e1;
+
+  /* Shadows & Effects */
+  --shadow-sm: 0 2px 8px rgba(37, 99, 235, 0.04);
+  --shadow-md: 0 6px 16px rgba(37, 99, 235, 0.08);
+  --shadow-btn: 0 2px 6px rgba(37, 99, 235, 0.25);
+  --dot-grid-color: #93c5fd;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.dot-grid {
+  background-image: radial-gradient(var(--dot-grid-color) 1.2px, transparent 1.2px);
+  background-size: 20px 20px;
+}
+
+.connector-line {
+  stroke: var(--dot-grid-color);
+  stroke-width: 2;
+  fill: none;
+}
+
+.card-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.card-container:hover {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+  background: var(--brand-primary);
+  color: var(--text-on-primary);
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-btn);
+}
+
+.btn-primary:hover {
+  background: var(--brand-primary-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-focus);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-subtle);
+  border-color: var(--border-hover);
+}
+
+/* Badges consuming Theme Variables */
+.badge {
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-hot {
+  background: var(--status-hot-bg);
+  color: var(--status-hot-text);
+  border: 1px solid var(--status-hot-border);
+}
+
+.badge-warm {
+  background: var(--status-warm-bg);
+  color: var(--status-warm-text);
+  border: 1px solid var(--status-warm-border);
+}
+
+.badge-cold {
+  background: var(--status-cold-bg);
+  color: var(--status-cold-text);
+  border: 1px solid var(--status-cold-border);
+}
+
+.badge-replied {
+  background: var(--status-replied-bg);
+  color: var(--status-replied-text);
+  border: 1px solid var(--status-replied-border);
+}
+
+.badge-converted {
+  background: var(--status-converted-bg);
+  color: var(--status-converted-text);
+  border: 1px solid var(--status-converted-border);
+}
+
+.badge-nurture {
+  background: var(--status-nurture-bg);
+  color: var(--status-nurture-text);
+  border: 1px solid var(--status-nurture-border);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 3px;
+}

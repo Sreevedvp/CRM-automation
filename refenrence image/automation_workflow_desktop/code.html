@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AutomateCRM - Workflow Builder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#d3e4fe",
+                    "on-primary-container": "#dad7ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "surface-container-high": "#dce9ff",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "inverse-primary": "#c3c0ff",
+                    "primary-fixed": "#e2dfff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "background": "#f8f9ff",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#d3e4fe",
+                    "on-secondary-container": "#00714d",
+                    "primary-container": "#4f46e5",
+                    "on-tertiary-container": "#ffd4a4",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-primary": "#ffffff",
+                    "primary": "#3525cd",
+                    "on-primary-fixed": "#0f0069",
+                    "outline": "#777587",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-tint": "#4d44e3",
+                    "on-background": "#0b1c30",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#464555",
+                    "secondary-fixed-dim": "#4edea3",
+                    "outline-variant": "#c7c4d8",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-secondary-fixed": "#002113",
+                    "surface-container": "#e5eeff",
+                    "inverse-surface": "#213145",
+                    "on-surface": "#0b1c30",
+                    "error": "#ba1a1a",
+                    "surface": "#f8f9ff",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#006c49",
+                    "tertiary-container": "#885500",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface-dim": "#cbdbf5",
+                    "surface-container-low": "#eff4ff",
+                    "on-error": "#ffffff",
+                    "tertiary": "#684000",
+                    "secondary-container": "#6cf8bb",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb95f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "sm": "8px",
+                    "margin-desktop": "40px",
+                    "md": "16px",
+                    "base": "4px",
+                    "xl": "32px",
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "gutter": "20px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "title-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "code-sm": ["JetBrains Mono"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "title-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "code-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .dot-grid {
+            background-image: radial-gradient(circle, #c7c4d8 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .connector-line {
+            stroke: #c7c4d8;
+            stroke-width: 2;
+            fill: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-dim shadow-sm flex justify-between items-center px-4 h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-full transition-colors duration-200 active:scale-95 text-on-surface-variant dark:text-outline-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-bold">AutomateCRM</h1>
+</div>
+<!-- Desktop Nav in TopAppBar -->
+<nav class="hidden md:flex gap-8 items-center h-full">
+<a class="h-full flex items-center border-b-2 border-primary text-primary dark:text-primary-fixed-dim font-title-sm text-title-sm" href="#">
+                Workflow
+            </a>
+<a class="h-full flex items-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface px-2 font-title-sm text-title-sm transition-colors" href="#">
+                Leads
+            </a>
+<a class="h-full flex items-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface px-2 font-title-sm text-title-sm transition-colors" href="#">
+                Tasks
+            </a>
+<a class="h-full flex items-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface px-2 font-title-sm text-title-sm transition-colors" href="#">
+                Profile
+            </a>
+</nav>
+<div class="flex items-center gap-2">
+<button class="p-2 hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-full transition-colors duration-200 active:scale-95 text-on-surface-variant dark:text-outline-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</div>
+</header>
+<main class="flex-1 mt-16 flex h-[calc(100vh-64px)]">
+<!-- Canvas Area -->
+<div class="flex-1 relative dot-grid overflow-auto bg-[#F8FAFC]">
+<!-- SVG Connectors Layer -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-0">
+<path class="connector-line" d="M 400 120 L 400 200"></path>
+<path class="connector-line" d="M 400 280 L 400 360"></path>
+<!-- Branching lines -->
+<path class="connector-line" d="M 400 440 L 400 480 L 200 480 L 200 520"></path>
+<path class="connector-line" d="M 400 440 L 400 520"></path>
+<path class="connector-line" d="M 400 440 L 400 480 L 600 480 L 600 520"></path>
+</svg>
+<div class="relative z-10 p-lg min-w-[800px] min-h-[800px]">
+<!-- Node 1: Trigger -->
+<div class="absolute top-[40px] left-[250px] w-[300px] bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm">
+<div class="border-l-4 border-primary rounded-l-lg p-md">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<h3 class="font-title-sm text-title-sm text-on-surface">New Lead Received</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Source: Web Form</p>
+</div>
+</div>
+<!-- Node 2: Action -->
+<div class="absolute top-[200px] left-[250px] w-[300px] bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm">
+<div class="border-l-4 border-secondary rounded-l-lg p-md">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">fact_check</span>
+<h3 class="font-title-sm text-title-sm text-on-surface">Lead Validation</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Check email deliverability &amp; enrich data.</p>
+</div>
+</div>
+<!-- Node 3: Logic -->
+<div class="absolute top-[360px] left-[250px] w-[300px] bg-surface-container-lowest border-2 border-primary-container rounded-lg shadow-lg relative cursor-pointer" onclick="toggleSidebar()">
+<div class="absolute -top-3 -right-3 bg-primary-container text-on-primary rounded-full w-6 h-6 flex items-center justify-center font-label-caps text-[10px] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">settings</span>
+</div>
+<div class="border-l-4 border-tertiary rounded-l-lg p-md bg-surface-container-low">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 0;">call_split</span>
+<h3 class="font-title-sm text-title-sm text-on-surface">Lead Scoring Branch</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-3">Evaluate lead score and route accordingly.</p>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container font-label-caps text-label-caps rounded">Hot &gt; 80</span>
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant font-label-caps text-label-caps rounded">Warm 40-79</span>
+<span class="px-2 py-1 bg-error-container text-on-error-container font-label-caps text-label-caps rounded">Cold &lt; 40</span>
+</div>
+</div>
+</div>
+<!-- Branch 1: Hot -->
+<div class="absolute top-[520px] left-[50px] w-[300px] bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm">
+<div class="border-l-4 border-error rounded-l-lg p-md">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 0;">local_fire_department</span>
+<h3 class="font-title-sm text-title-sm text-on-surface">Assign to Sales</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Priority task created for Account Executive.</p>
+</div>
+</div>
+<!-- Branch 2: Warm -->
+<div class="absolute top-[520px] left-[250px] w-[300px] bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm">
+<div class="border-l-4 border-primary rounded-l-lg p-md">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 0;">mail</span>
+<h3 class="font-title-sm text-title-sm text-on-surface">Nurture Sequence</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Add to 14-day educational email campaign.</p>
+</div>
+</div>
+<!-- Branch 3: Cold -->
+<div class="absolute top-[520px] left-[450px] w-[300px] bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm">
+<div class="border-l-4 border-outline rounded-l-lg p-md">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-outline" style="font-variation-settings: 'FILL' 0;">ac_unit</span>
+<h3 class="font-title-sm text-title-sm text-on-surface">Add to Newsletter</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Low priority monthly updates only.</p>
+</div>
+</div>
+</div>
+<!-- Zoom Controls -->
+<div class="fixed bottom-lg left-lg bg-surface-container-lowest shadow-lg rounded-lg border border-outline-variant flex flex-col p-1">
+<button class="p-2 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+<div class="h-px bg-outline-variant my-1"></div>
+<button class="p-2 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+</div>
+<!-- Configuration Sidebar -->
+<aside class="w-[400px] bg-surface border-l border-outline-variant shadow-lg flex flex-col h-full transform transition-transform duration-300 translate-x-0" id="configSidebar">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<h2 class="font-title-sm text-title-sm text-on-surface">Configure Logic Node</h2>
+<button class="p-2 hover:bg-surface-container-high rounded-full text-on-surface-variant transition-colors" onclick="toggleSidebar()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-md flex-1 overflow-y-auto">
+<div class="mb-lg">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Node Name</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded px-3 py-2 text-body-md font-body-md focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-shadow" type="text" value="Lead Scoring Branch"/>
+</div>
+<div class="mb-lg">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Description</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded px-3 py-2 text-body-md font-body-md focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-shadow" rows="2">Evaluate lead score and route accordingly.</textarea>
+</div>
+<div class="border-t border-outline-variant pt-lg">
+<h3 class="font-title-sm text-title-sm text-on-surface mb-4">Branching Conditions</h3>
+<!-- Condition 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-sm mb-md relative group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-l-lg"></div>
+<div class="pl-3">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-caps text-label-caps bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded">Branch 1: Hot</span>
+<button class="text-on-surface-variant hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+<div class="flex gap-2 items-center">
+<select class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm flex-1">
+<option>Lead Score</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm w-24">
+<option>&gt;</option>
+<option>&gt;=</option>
+<option>&lt;</option>
+</select>
+<input class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm w-20" type="number" value="80"/>
+</div>
+</div>
+</div>
+<!-- Condition 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-sm mb-md relative group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg"></div>
+<div class="pl-3">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-caps text-label-caps bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded">Branch 2: Warm</span>
+<button class="text-on-surface-variant hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+<div class="flex gap-2 items-center mb-2">
+<select class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm flex-1">
+<option>Lead Score</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm w-24">
+<option>&lt;</option>
+</select>
+<input class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm w-20" type="number" value="80"/>
+</div>
+<div class="flex gap-2 items-center">
+<span class="text-body-sm text-on-surface-variant w-8 text-center">AND</span>
+<select class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm flex-1">
+<option>Lead Score</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm w-24">
+<option>&gt;=</option>
+</select>
+<input class="bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm font-body-sm w-20" type="number" value="40"/>
+</div>
+</div>
+</div>
+<button class="w-full border border-dashed border-outline-variant hover:border-primary hover:text-primary text-on-surface-variant rounded-lg py-2 flex items-center justify-center gap-2 transition-colors font-title-sm text-title-sm">
+<span class="material-symbols-outlined">add</span>
+                        Add Condition
+                    </button>
+</div>
+</div>
+<div class="p-md border-t border-outline-variant bg-surface-container-lowest">
+<button class="w-full bg-primary text-on-primary rounded-lg py-2 font-title-sm text-title-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] hover:bg-on-primary-fixed-variant transition-colors">
+                    Save Configuration
+                </button>
+</div>
+</aside>
+</main>
+<!-- BottomNavBar (Hidden on md, visible on mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-full bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline shadow-lg flex justify-around items-center h-20 pb-safe px-2">
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_tree</span>
+<span class="font-label-caps text-label-caps mt-1">Workflow</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">groups</span>
+<span class="font-label-caps text-label-caps mt-1">Leads</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">assignment</span>
+<span class="font-label-caps text-label-caps mt-1">Tasks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('configSidebar');
+            if (sidebar.classList.contains('translate-x-full')) {
+                sidebar.classList.remove('translate-x-full');
+                sidebar.classList.add('translate-x-0');
+            } else {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('translate-x-full');
+            }
+        }
+    </script>
+</body></html>
